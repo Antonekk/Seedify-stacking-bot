@@ -2,12 +2,13 @@ from bs4 import BeautifulSoup
 import requests
 import random
 from datetime import datetime
+import time
 
 stacking7 = {
     "txn": "",
     "amount": 0,
     "IO": "",
-    "date": datetime.now().strftime("%y/%m/%d %H:%M:%S")
+    "date": datetime.now().strftime('%y/%m/%d %H:%M:%S')
 }
 
 def main():
@@ -47,8 +48,11 @@ def get_txn(contract, stacking):
         replace_str = date[2:4]
         date = replace_str + date[4:]
         date = datetime.strptime(date, '%y/%m/%d %H:%M:%S')
-
-
+        stacting_date = datetime.strptime(stacking["date"], '%y/%m/%d %H:%M:%S')
+        if date > stacting_date:
+            print(True)
+        else:
+            print(False)
 main()
 
 

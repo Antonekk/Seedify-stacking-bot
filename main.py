@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 import random
+import pandas
 import time
 
 user_agents = [
@@ -20,8 +21,13 @@ user_agents = [
 
 header = {"user-agent": random.choice(user_agents)}
 
-html = requests.get("https://bscscan.com/address/0xb667c499b88ac66899e54e27ad830d423d9fba69#tokentxns", headers=header, timeout=5).text
+html = requests.get("https://bscscan.com/tokentxns?a=0xb667c499b88ac66899e54e27ad830d423d9fba69", headers=header, timeout=5).text
+
 soup = BeautifulSoup(html, 'lxml')
-tablerows = soup.find("table", class_="table table-hover").tbody.find_all("tr")
-print(tablerows)
+tablerows = soup.find("table", class_="table table-text-normal table-hover").tbody.find_all("tr")
+for row in tablerows:
+    print("hash: "+row.find("a",class_="myFnExpandBox_searchVal").text, end=" | ")
+    print("amount: " + row.find_all("td")[7].text)
+    print("In/Out: " + row.find_all("td")[5].text)
+
 

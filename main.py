@@ -1,7 +1,18 @@
 from bs4 import BeautifulSoup
 import requests
 import random
-import time
+from datetime import datetime
+
+stacking7 = {
+    "txn": "",
+    "amount": 0,
+    "IO": "",
+    "date": datetime.now().strftime("%y/%m/%d %H:%M:%S")
+}
+
+def main():
+    print(stacking7)
+    get_txn("0xb667c499b88ac66899e54e27ad830d423d9fba69", stacking7)
 
 def get_agents():
     user_agents = [
@@ -21,17 +32,23 @@ def get_agents():
 
     return {"user-agent": random.choice(user_agents)}
 
-def get_txn(contract):
+def get_txn(contract, stacking):
     header = get_agents()
     html = requests.get(f"https://bscscan.com/tokentxns?a={contract}", headers=header, timeout=5).text
 
     soup = BeautifulSoup(html, 'lxml')
     tablerows = soup.find("table", class_="table table-text-normal table-hover").tbody.find_all("tr")
     for row in tablerows:
-        print("hash: "+row.find("a",class_="myFnExpandBox_searchVal").text, end=" | ")
-        print("amount: " + row.find_all("td")[7].text)
-        print("In/Out: " + row.find_all("td")[5].text)
+        hash = row.find("a",class_="myFnExpandBox_searchVal").text
+        amount = round(float( (row.find_all("td")[7].text).replace(",", "") ),2)
+        IO = row.find_all("td")[5].text
 
-get_txn("0xb667c499b88ac66899e54e27ad830d423d9fba69")
+        date = row.find_all("td")[3].span["title"].replace("-", "/")
+        replace_str = date[2:4]
+        date = replace_str + date[4:]
+        date = datetime.strptime(date, '%y/%m/%d %H:%M:%S')
+
+
+main()
 
 

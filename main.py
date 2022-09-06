@@ -10,10 +10,19 @@ stacking7 = {
     "IO": "",
     "date": datetime.now().strftime('%y/%m/%d %H:%M:%S')
 }
+stacking14 = stacking30 = stacking60 = stacking90 = stacking7
+
+urls = {
+    "7days" : "0xb667c499b88ac66899e54e27ad830d423d9fba69",
+    "14days" : "0x027fC3A49383D0E7Bd6b81ef6C7512aFD7d22a9e",
+    "30days" : "0x8900475BF7ed42eFcAcf9AE8CfC24Aa96098f776",
+    "60days" : "0x66b8c1f8DE0574e68366E8c4e47d0C8883A6Ad0b",
+    "90days" : "0x5745b7E077a76bE7Ba37208ff71d843347441576"
+}
 
 def main():
     print(stacking7)
-    get_txn("0xb667c499b88ac66899e54e27ad830d423d9fba69", stacking7)
+    get_txn(urls["7days"], stacking7)
 
 def get_agents():
     user_agents = [

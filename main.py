@@ -6,18 +6,19 @@ import random
 from datetime import datetime
 import time
 
-stacking7 = {
+staking7 = {
     "txn": "",
     "amount": 0,
     "IO": "",
     "date": datetime.utcnow().strftime('%y/%m/%d %H:%M:%S')
 }
-stacking14 = dict(stacking7)
-stacking30 = dict(stacking7)
-stacking60 = dict(stacking7)
-stacking90 = dict(stacking7)
+staking14 = dict(staking7)
+staking30 = dict(staking7)
+staking60 = dict(staking7)
+staking90 = dict(staking7)
 
-stackings_list = [stacking7, stacking14, stacking30, stacking60, stacking90]
+stakings_list = [staking7, staking14, staking30, staking60, staking90]
+staking_time = ["7", "14", "30", "60", "90"]
 
 urls = ["0xb667c499b88ac66899e54e27ad830d423d9fba69",
         "0x027fC3A49383D0E7Bd6b81ef6C7512aFD7d22a9e",
@@ -29,17 +30,16 @@ urls = ["0xb667c499b88ac66899e54e27ad830d423d9fba69",
 def main():
     while True:
         for i in range(5):
-            stackings_list[i].update(get_txn(urls[i], stackings_list[i]))
+            stakings_list[i].update(get_txn(urls[i], stakings_list[i], staking_time[i]))
         time.sleep(300)
 
 
-def post(data):
+def post(data, staking_time):
     if data["amount"] > 1:
         if data["IO"] == "IN":
-            staked = "was staked"
+            print(f"{data['amount']} SFUND was staked for {staking_time} on {data['date']}. For more info check this txn: {data['txn']}")
         else:
-            staked = "was unstaked"
-        print(f"{data['amount']} SFUND {staked} on {data['date']}. For more info check this txn: {data['txn']}")
+            print(f"{data['amount']} SFUND was unstaked from {staking_time} days pool on {data['date']}. For more info check this txn: {data['txn']}")
 
 def get_agents():
     user_agents = [
@@ -59,7 +59,7 @@ def get_agents():
 
     return {"user-agent": random.choice(user_agents)}
 
-def get_txn(contract, stacking):
+def get_txn(contract, staking, staking_time):
     header = get_agents()
     html = requests.get(f"https://bscscan.com/tokentxns?a={contract}", headers=header, timeout=5).text
 
@@ -68,7 +68,7 @@ def get_txn(contract, stacking):
     first_txn = {}
     for row in tablerows:
         hash = row.find("a",class_="myFnExpandBox_searchVal").text
-        if hash == stacking["txn"]:
+        if hash == staking["txn"]:
             break
         amount = round(float( (row.find_all("td")[7].text).replace(",", "") ),2)
         IO = unicodedata.normalize("NFKD",row.find_all("td")[5].text).strip()
@@ -76,7 +76,7 @@ def get_txn(contract, stacking):
         date = row.find_all("td")[3].span["title"].replace("-", "/")
         date = date[2:4] + date[4:]
         date = datetime.strptime(date, '%y/%m/%d %H:%M:%S')
-        stacting_date = datetime.strptime(stacking["date"], '%y/%m/%d %H:%M:%S')
+        stacting_date = datetime.strptime(staking["date"], '%y/%m/%d %H:%M:%S')
 
         if date > stacting_date:
             transaction = {
@@ -85,7 +85,7 @@ def get_txn(contract, stacking):
                 "IO": IO,
                 "date": date
             }
-            post(transaction)
+            post(transaction, staking_time)
             if not first_txn:
                 first_txn = transaction
         else:

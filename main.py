@@ -1,3 +1,5 @@
+import unicodedata
+
 from bs4 import BeautifulSoup
 import requests
 import random
@@ -22,7 +24,11 @@ urls = {
 
 def main():
     print(stacking7)
-    get_txn(urls["7days"], stacking7)
+    stacking7.update(get_txn(urls["7days"], stacking7))
+    print(stacking7)
+
+def post(data):
+    print("Post was added")
 
 def get_agents():
     user_agents = [
@@ -48,20 +54,33 @@ def get_txn(contract, stacking):
 
     soup = BeautifulSoup(html, 'lxml')
     tablerows = soup.find("table", class_="table table-text-normal table-hover").tbody.find_all("tr")
+    first_txn = {}
     for row in tablerows:
         hash = row.find("a",class_="myFnExpandBox_searchVal").text
+        if hash == stacking["txn"]:
+            break
         amount = round(float( (row.find_all("td")[7].text).replace(",", "") ),2)
-        IO = row.find_all("td")[5].text
+        IO = unicodedata.normalize("NFKD",row.find_all("td")[5].text).strip()
 
         date = row.find_all("td")[3].span["title"].replace("-", "/")
-        replace_str = date[2:4]
-        date = replace_str + date[4:]
+        date = date[2:4] + date[4:]
         date = datetime.strptime(date, '%y/%m/%d %H:%M:%S')
-        stacting_date = datetime.strptime(stacking["date"], '%y/%m/%d %H:%M:%S')
+        stacting_date = datetime.strptime('22/09/07 5:20:30', '%y/%m/%d %H:%M:%S')
+
         if date > stacting_date:
-            print(True)
+            transaction = {
+                "txn": hash,
+                "amount": amount,
+                "IO": IO,
+                "date": date
+            }
+            post(transaction)
+            if not first_txn:
+                first_txn = transaction
         else:
-            print(False)
+            break
+    return  first_txn
+
 main()
 
 

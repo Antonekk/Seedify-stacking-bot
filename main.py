@@ -10,25 +10,36 @@ stacking7 = {
     "txn": "",
     "amount": 0,
     "IO": "",
-    "date": datetime.now().strftime('%y/%m/%d %H:%M:%S')
+    "date": datetime.utcnow().strftime('%y/%m/%d %H:%M:%S')
 }
-stacking14 = stacking30 = stacking60 = stacking90 = stacking7
+stacking14 = dict(stacking7)
+stacking30 = dict(stacking7)
+stacking60 = dict(stacking7)
+stacking90 = dict(stacking7)
 
-urls = {
-    "7days" : "0xb667c499b88ac66899e54e27ad830d423d9fba69",
-    "14days" : "0x027fC3A49383D0E7Bd6b81ef6C7512aFD7d22a9e",
-    "30days" : "0x8900475BF7ed42eFcAcf9AE8CfC24Aa96098f776",
-    "60days" : "0x66b8c1f8DE0574e68366E8c4e47d0C8883A6Ad0b",
-    "90days" : "0x5745b7E077a76bE7Ba37208ff71d843347441576"
-}
+stackings_list = [stacking7, stacking14, stacking30, stacking60, stacking90]
+
+urls = ["0xb667c499b88ac66899e54e27ad830d423d9fba69",
+        "0x027fC3A49383D0E7Bd6b81ef6C7512aFD7d22a9e",
+        "0x8900475BF7ed42eFcAcf9AE8CfC24Aa96098f776",
+        "0x66b8c1f8DE0574e68366E8c4e47d0C8883A6Ad0b",
+        "0x5745b7E077a76bE7Ba37208ff71d843347441576"]
+
 
 def main():
-    print(stacking7)
-    stacking7.update(get_txn(urls["7days"], stacking7))
-    print(stacking7)
+    while True:
+        for i in range(5):
+            stackings_list[i].update(get_txn(urls[i], stackings_list[i]))
+        time.sleep(300)
+
 
 def post(data):
-    print("Post was added")
+    if data["amount"] > 1:
+        if data["IO"] == "IN":
+            staked = "was staked"
+        else:
+            staked = "was unstaked"
+        print(f"{data['amount']} SFUND {staked} on {data['date']}. For more info check this txn: {data['txn']}")
 
 def get_agents():
     user_agents = [
@@ -65,7 +76,7 @@ def get_txn(contract, stacking):
         date = row.find_all("td")[3].span["title"].replace("-", "/")
         date = date[2:4] + date[4:]
         date = datetime.strptime(date, '%y/%m/%d %H:%M:%S')
-        stacting_date = datetime.strptime('22/09/07 5:20:30', '%y/%m/%d %H:%M:%S')
+        stacting_date = datetime.strptime(stacking["date"], '%y/%m/%d %H:%M:%S')
 
         if date > stacting_date:
             transaction = {

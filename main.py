@@ -31,7 +31,8 @@ def main():
     while True:
         for i in range(5):
             stakings_list[i].update(get_txn(urls[i], stakings_list[i], staking_time[i]))
-        time.sleep(300)
+            print(stakings_list[i]["date"])
+        time.sleep(30)
 
 
 def post(data, staking_time):
@@ -83,7 +84,7 @@ def get_txn(contract, staking, staking_time):
                 "txn": hash,
                 "amount": amount,
                 "IO": IO,
-                "date": date
+                "date": date.strftime('%y/%m/%d %H:%M:%S')
             }
             post(transaction, staking_time)
             if not first_txn:

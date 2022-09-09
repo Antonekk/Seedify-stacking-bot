@@ -31,16 +31,15 @@ def main():
     while True:
         for i in range(5):
             stakings_list[i].update(get_txn(urls[i], stakings_list[i], staking_time[i]))
-            print(stakings_list[i]["date"])
         time.sleep(30)
 
 
 def post(data, staking_time):
     if data["amount"] > 1:
         if data["IO"] == "IN":
-            print(f"{data['amount']} SFUND was staked for {staking_time} on {data['date']}. For more info check this txn: {data['txn']}")
+            print(f"{data['amount']} SFUND was staked for {staking_time} on {data['date']} UTC. More details here: https://bscscan.com/tx/{data['txn']}")
         else:
-            print(f"{data['amount']} SFUND was unstaked from {staking_time} days pool on {data['date']}. For more info check this txn: {data['txn']}")
+            print(f"{data['amount']} SFUND was unstaked from {staking_time} days pool on {data['date']} UTC. More details here: https://bscscan.com/tx/{data['txn']}")
 
 def get_agents():
     user_agents = [
@@ -61,13 +60,20 @@ def get_agents():
     return {"user-agent": random.choice(user_agents)}
 
 def get_txn(contract, staking, staking_time):
-    header = get_agents()
-    html = requests.get(f"https://bscscan.com/tokentxns?a={contract}", headers=header, timeout=5).text
+    while True:
+        header = get_agents()
+        html = requests.get(f"https://bscscan.com/tokentxns?a={contract}", headers=header, timeout=5)
+        if html.status_code == 200:
+            break
+    html = html.text
 
     soup = BeautifulSoup(html, 'lxml')
     tablerows = soup.find("table", class_="table table-text-normal table-hover").tbody.find_all("tr")
     first_txn = {}
     for row in tablerows:
+        token = row.find("img").parent.text
+        if "SFUND" not in token:
+            break
         hash = row.find("a",class_="myFnExpandBox_searchVal").text
         if hash == staking["txn"]:
             break

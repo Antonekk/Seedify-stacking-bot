@@ -1,5 +1,4 @@
 import unicodedata
-
 from bs4 import BeautifulSoup
 import requests
 import random
@@ -8,8 +7,15 @@ import time
 from dotenv import load_dotenv
 import os
 import tweepy
-from urllib.request import Request, urlopen
 
+
+
+def main():
+    while True:
+        for i in range(5):
+            stakings_list[i].update(get_txn(urls[i], stakings_list[i], staking_time[i]))
+        print("wait")
+        time.sleep(120)
 
 
 
@@ -38,29 +44,12 @@ client = tweepy.Client(consumer_key=API_KEY,
                        access_token_secret=ACCESS_SECRET_TOKEN,
                        wait_on_rate_limit=True)
 
-
 urls = ["0xb667c499b88ac66899e54e27ad830d423d9fba69",
         "0x027fC3A49383D0E7Bd6b81ef6C7512aFD7d22a9e",
         "0x8900475BF7ed42eFcAcf9AE8CfC24Aa96098f776",
         "0x66b8c1f8DE0574e68366E8c4e47d0C8883A6Ad0b",
         "0x5745b7E077a76bE7Ba37208ff71d843347441576"]
 
-
-def main():
-    while True:
-        for i in range(5):
-            print("testing2")
-            stakings_list[i].update(get_txn(urls[i], stakings_list[i], staking_time[i]))
-        time.sleep(120)
-
-
-def post(data, staking_time):
-    if data["amount"] > 250:
-        if data["IO"] == "IN":
-            client.create_tweet(text=(f"{data['amount']} SFUND was staked for {staking_time} days. More details here: https://bscscan.com/tx/{data['txn']}"))
-        else:
-            client.create_tweet(text=(f"{data['amount']} SFUND was unstaked from {staking_time} days pool. More details here: https://bscscan.com/tx/{data['txn']}"))
-        print("POSTED")
 
 def get_agents():
     user_agents = [
@@ -80,16 +69,25 @@ def get_agents():
 
     return {"user-agent": random.choice(user_agents)}
 
+
+
+def post(data, staking_time):
+    if data["amount"] > 250:
+        if data["IO"] == "IN":
+            client.create_tweet(text=(f"{data['amount']} SFUND was staked for {staking_time} days. More details here: https://bscscan.com/tx/{data['txn']}"))
+            print("POSTED")
+        else:
+            client.create_tweet(text=(f"{data['amount']} SFUND was unstaked from {staking_time} days pool. More details here: https://bscscan.com/tx/{data['txn']}"))
+            print("POSTED")
+
+
 def get_txn(contract, staking, staking_time):
-    print("testing function")
     while True:
         header = get_agents()
-        html = Request(f"https://bscscan.com/tokentxns?a={contract}", headers=header)
-        html = urlopen(html)
-        print(html.status_code)
+        html = requests.get(f"https://bscscan.com/tokentxns?a={contract}", headers=header, timeout=5)
         if html.status_code == 200:
             break
-    html = html.read()
+    html = html.text
 
     soup = BeautifulSoup(html, 'lxml')
     tablerows = soup.find("table", class_="table table-text-normal table-hover").tbody.find_all("tr")
@@ -124,5 +122,3 @@ def get_txn(contract, staking, staking_time):
     return  first_txn
 
 main()
-
-

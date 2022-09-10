@@ -1,5 +1,4 @@
 import unicodedata
-
 from bs4 import BeautifulSoup
 import requests
 import random
@@ -8,6 +7,16 @@ import time
 from dotenv import load_dotenv
 import os
 import tweepy
+
+
+
+def main():
+    while True:
+        for i in range(5):
+            stakings_list[i].update(get_txn(urls[i], stakings_list[i], staking_time[i]))
+        print("wait")
+        time.sleep(120)
+
 
 
 staking7 = {
@@ -42,22 +51,6 @@ urls = ["0xb667c499b88ac66899e54e27ad830d423d9fba69",
         "0x5745b7E077a76bE7Ba37208ff71d843347441576"]
 
 
-def main():
-    while True:
-        for i in range(5):
-            stakings_list[i].update(get_txn(urls[i], stakings_list[i], staking_time[i]))
-        time.sleep(120)
-
-
-def post(data, staking_time):
-    if data["amount"] > 250:
-        if data["IO"] == "IN":
-            client.create_tweet(text=(f"{data['amount']} SFUND was staked for {staking_time} days. More details here: https://bscscan.com/tx/{data['txn']}"))
-            print("POSTED")
-        else:
-            client.create_tweet(text=(f"{data['amount']} SFUND was unstaked from {staking_time} days pool. More details here: https://bscscan.com/tx/{data['txn']}"))
-            print("POSTED")
-
 def get_agents():
     user_agents = [
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36",
@@ -75,6 +68,18 @@ def get_agents():
     ]
 
     return {"user-agent": random.choice(user_agents)}
+
+
+
+def post(data, staking_time):
+    if data["amount"] > 250:
+        if data["IO"] == "IN":
+            client.create_tweet(text=(f"{data['amount']} SFUND was staked for {staking_time} days. More details here: https://bscscan.com/tx/{data['txn']}"))
+            print("POSTED")
+        else:
+            client.create_tweet(text=(f"{data['amount']} SFUND was unstaked from {staking_time} days pool. More details here: https://bscscan.com/tx/{data['txn']}"))
+            print("POSTED")
+
 
 def get_txn(contract, staking, staking_time):
     while True:

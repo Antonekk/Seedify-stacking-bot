@@ -50,11 +50,13 @@ def main():
     client.create_tweet(text="test")
     while True:
         for i in range(5):
+            print("testing2")
             stakings_list[i].update(get_txn(urls[i], stakings_list[i], staking_time[i]))
         time.sleep(120)
 
 
 def post(data, staking_time):
+    print("testing post")
     if data["amount"] > 250:
         if data["IO"] == "IN":
             client.create_tweet(text=(f"{data['amount']} SFUND was staked for {staking_time} days. More details here: https://bscscan.com/tx/{data['txn']}"))
@@ -92,6 +94,7 @@ def get_txn(contract, staking, staking_time):
     tablerows = soup.find("table", class_="table table-text-normal table-hover").tbody.find_all("tr")
     first_txn = {}
     for row in tablerows:
+        print("testing rows")
         token = row.find("img").parent.text
         if "SFUND" not in token:
             break

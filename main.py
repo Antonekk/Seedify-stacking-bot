@@ -10,6 +10,8 @@ import os
 import tweepy
 
 
+
+
 staking7 = {
     "txn": "",
     "amount": 0,
@@ -34,6 +36,8 @@ client = tweepy.Client(consumer_key=API_KEY,
                        access_token=ACCESS_TOKEN,
                        access_token_secret=ACCESS_SECRET_TOKEN,
                        wait_on_rate_limit=True)
+
+client.create_tweet(text="test)
 
 urls = ["0xb667c499b88ac66899e54e27ad830d423d9fba69",
         "0x027fC3A49383D0E7Bd6b81ef6C7512aFD7d22a9e",

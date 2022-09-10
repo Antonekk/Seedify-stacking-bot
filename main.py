@@ -5,6 +5,10 @@ import requests
 import random
 from datetime import datetime
 import time
+from dotenv import load_dotenv
+import os
+import tweepy
+
 
 staking7 = {
     "txn": "",
@@ -20,6 +24,17 @@ staking90 = dict(staking7)
 stakings_list = [staking7, staking14, staking30, staking60, staking90]
 staking_time = ["7", "14", "30", "60", "90"]
 
+load_dotenv()
+API_KEY = os.getenv("API_KEY")
+API_SECRET_KEY = os.getenv("API_SECRET_KEY")
+ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
+ACCESS_SECRET_TOKEN = os.getenv("ACCESS_SECRET_TOKEN")
+client = tweepy.Client(consumer_key=API_KEY,
+                       consumer_secret=API_SECRET_KEY,
+                       access_token=ACCESS_TOKEN,
+                       access_token_secret=ACCESS_SECRET_TOKEN,
+                       wait_on_rate_limit=True)
+
 urls = ["0xb667c499b88ac66899e54e27ad830d423d9fba69",
         "0x027fC3A49383D0E7Bd6b81ef6C7512aFD7d22a9e",
         "0x8900475BF7ed42eFcAcf9AE8CfC24Aa96098f776",
@@ -31,15 +46,17 @@ def main():
     while True:
         for i in range(5):
             stakings_list[i].update(get_txn(urls[i], stakings_list[i], staking_time[i]))
-        time.sleep(30)
+        time.sleep(120)
 
 
 def post(data, staking_time):
-    if data["amount"] > 1:
+    if data["amount"] > 250:
         if data["IO"] == "IN":
-            print(f"{data['amount']} SFUND was staked for {staking_time} on {data['date']} UTC. More details here: https://bscscan.com/tx/{data['txn']}")
+            client.create_tweet(text=(f"{data['amount']} SFUND was staked for {staking_time} days. More details here: https://bscscan.com/tx/{data['txn']}"))
+            print("POSTED")
         else:
-            print(f"{data['amount']} SFUND was unstaked from {staking_time} days pool on {data['date']} UTC. More details here: https://bscscan.com/tx/{data['txn']}")
+            client.create_tweet(text=(f"{data['amount']} SFUND was unstaked from {staking_time} days pool. More details here: https://bscscan.com/tx/{data['txn']}"))
+            print("POSTED")
 
 def get_agents():
     user_agents = [

@@ -89,6 +89,7 @@ def get_txn(contract, staking, staking_time):
         html = requests.get(f"https://bscscan.com/tokentxns?a={contract}", headers=header, timeout=5)
         if html.status_code == 200:
             break
+    print("after while")
     html = html.text
 
     soup = BeautifulSoup(html, 'lxml')

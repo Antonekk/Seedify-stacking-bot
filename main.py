@@ -84,7 +84,7 @@ def post(data, staking_time):
 def get_txn(contract, staking, staking_time):
     while True:
         header = get_agents()
-        html = requests.get(f"https://bscscan.com/tokentxns?a={contract}", headers=header, timeout=5)
+        html = requests.get(f"https://bscscan.com/tokentxns?a={contract}", headers=header, timeout=5, proxies={ "https" : "https://20.113.143.102"})
         if html.status_code == 200:
             break
     html = html.text

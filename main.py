@@ -46,8 +46,6 @@ urls = ["0xb667c499b88ac66899e54e27ad830d423d9fba69",
 
 
 def main():
-    print("test")
-    client.create_tweet(text="test")
     while True:
         for i in range(5):
             print("testing2")
@@ -56,7 +54,6 @@ def main():
 
 
 def post(data, staking_time):
-    print("testing post")
     if data["amount"] > 250:
         if data["IO"] == "IN":
             client.create_tweet(text=(f"{data['amount']} SFUND was staked for {staking_time} days. More details here: https://bscscan.com/tx/{data['txn']}"))
@@ -87,9 +84,9 @@ def get_txn(contract, staking, staking_time):
     while True:
         header = get_agents()
         html = requests.get(f"https://bscscan.com/tokentxns?a={contract}", headers=header, timeout=5)
+        print(html.status_code)
         if html.status_code == 200:
             break
-    print("after while")
     html = html.text
 
     soup = BeautifulSoup(html, 'lxml')

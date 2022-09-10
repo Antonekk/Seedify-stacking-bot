@@ -85,7 +85,7 @@ def get_txn(contract, staking, staking_time):
     while True:
         header = get_agents()
         html = Request(f"https://bscscan.com/tokentxns?a={contract}", headers=header)
-        html = urlopen(req)
+        html = urlopen(html)
         print(html.status_code)
         if html.status_code == 200:
             break

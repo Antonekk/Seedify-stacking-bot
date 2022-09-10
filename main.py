@@ -83,6 +83,7 @@ def get_agents():
     return {"user-agent": random.choice(user_agents)}
 
 def get_txn(contract, staking, staking_time):
+    print("testing function")
     while True:
         header = get_agents()
         html = requests.get(f"https://bscscan.com/tokentxns?a={contract}", headers=header, timeout=5)
@@ -94,7 +95,6 @@ def get_txn(contract, staking, staking_time):
     tablerows = soup.find("table", class_="table table-text-normal table-hover").tbody.find_all("tr")
     first_txn = {}
     for row in tablerows:
-        print("testing rows")
         token = row.find("img").parent.text
         if "SFUND" not in token:
             break

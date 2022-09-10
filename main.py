@@ -8,6 +8,7 @@ import time
 from dotenv import load_dotenv
 import os
 import tweepy
+from urllib.request import Request, urlopen
 
 
 
@@ -83,11 +84,12 @@ def get_txn(contract, staking, staking_time):
     print("testing function")
     while True:
         header = get_agents()
-        html = requests.get(f"https://bscscan.com/tokentxns?a={contract}", headers=header, timeout=5)
+        html = Request(f"https://bscscan.com/tokentxns?a={contract}", headers=header)
+        html = urlopen(req)
         print(html.status_code)
         if html.status_code == 200:
             break
-    html = html.text
+    html = html.read()
 
     soup = BeautifulSoup(html, 'lxml')
     tablerows = soup.find("table", class_="table table-text-normal table-hover").tbody.find_all("tr")

@@ -46,6 +46,7 @@ def main():
     while True:
         for i in range(5):
             stakings_list[i].update(get_txn(urls[i], stakings_list[i], staking_time[i]))
+        print("wait")
         time.sleep(120)
 
 

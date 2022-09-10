@@ -46,6 +46,8 @@ urls = ["0xb667c499b88ac66899e54e27ad830d423d9fba69",
 
 
 def main():
+    print("test")
+    client.create_tweet(text="test")
     while True:
         for i in range(5):
             stakings_list[i].update(get_txn(urls[i], stakings_list[i], staking_time[i]))

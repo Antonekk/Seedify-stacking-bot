@@ -9,3 +9,6 @@
 #### - Tweepy | pip install tweepy
 #### - Dotenv | pip install python-dotenv
 
+
+## You can modify this code and use it in your project as long as it contains a link to this bot.
+

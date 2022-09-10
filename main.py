@@ -37,7 +37,6 @@ client = tweepy.Client(consumer_key=API_KEY,
                        access_token_secret=ACCESS_SECRET_TOKEN,
                        wait_on_rate_limit=True)
 
-client.create_tweet(text="test")
 
 urls = ["0xb667c499b88ac66899e54e27ad830d423d9fba69",
         "0x027fC3A49383D0E7Bd6b81ef6C7512aFD7d22a9e",
@@ -50,7 +49,6 @@ def main():
     while True:
         for i in range(5):
             stakings_list[i].update(get_txn(urls[i], stakings_list[i], staking_time[i]))
-        print("wait")
         time.sleep(120)
 
 
@@ -58,10 +56,9 @@ def post(data, staking_time):
     if data["amount"] > 250:
         if data["IO"] == "IN":
             client.create_tweet(text=(f"{data['amount']} SFUND was staked for {staking_time} days. More details here: https://bscscan.com/tx/{data['txn']}"))
-            print("POSTED")
         else:
             client.create_tweet(text=(f"{data['amount']} SFUND was unstaked from {staking_time} days pool. More details here: https://bscscan.com/tx/{data['txn']}"))
-            print("POSTED")
+        print("POSTED")
 
 def get_agents():
     user_agents = [

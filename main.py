@@ -84,15 +84,10 @@ def post(data, staking_time):
 def get_txn(contract, staking, staking_time):
     while True:
         header = get_agents()
-        html = requests.get("https://bscxplorer.com/address/0x5745b7E077a76bE7Ba37208ff71d843347441576?filter=1", headers=header, timeout=5)
-        print(html.status_code)
+        html = requests.get(f"https://bscscan.com/tokentxns?a={contract}", headers=header, timeout=5 )
         if html.status_code == 200:
             break
     html = html.text
-    print(html)
-    test = 0
-    while True:
-        test +=1
 
     soup = BeautifulSoup(html, 'lxml')
     tablerows = soup.find("table", class_="table table-text-normal table-hover").tbody.find_all("tr")

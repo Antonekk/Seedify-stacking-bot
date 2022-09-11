@@ -67,7 +67,7 @@ def get_agents():
         "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36 OPR/83.0.4254.27"
     ]
 
-    return {"user-agent": random.choice(user_agents)}
+    return {"user-agent": random.choice(user_agents), "cookie": "ASP.NET_SessionId=n1af0r3hfibrwtsf3kmk1phe; __stripe_mid=a774203e-9120-4797-b6d0-d41b29fa29f1eaa03e; bscscan_cookieconsent=True; bscscan_userid=Antonek; bscscan_pwd=4792:Qdxb:n2uINnhrZ+dCxSvLK7BvdPAhyITjuvSg3abwwgSwZjc=; bscscan_autologin=True; __cuid=eb8642842bb0485889e91524ed494a9c; amp_fef1e8=2c12ba0d-95ab-4614-a8ad-d53ac353fae8R...1gc6dfp1b.1gc6dfp1f.t.3.10; __cflb=02DiuJNoxEYARvg2sN5n1HeVcoKCZ1njFYGe1E8j1jB7r; __cf_bm=dbdh4.hBaIA7tGn4PC_rB1OeU.pqWo3KD9gJGWi9Cf8-1662893333-0-ARzLn+/SAG3n/18GxJvCUh1TtNu3XLDU0L2QrsCpgq+i+RDZN+zAFVk2zPIEAsli169k2D1FMmq82SJsNI6nsLb8SKMMXWi82/92+Ym4awRlhg42E9Rm3f/uxs75RLCwhw=="}
 
 
 
@@ -85,6 +85,7 @@ def get_txn(contract, staking, staking_time):
     while True:
         header = get_agents()
         html = requests.get(f"https://bscscan.com/tokentxns?a={contract}", headers=header, timeout=5, proxies={"http": "https://167.99.41.64:3128"})
+        print(html.status_code)
         if html.status_code == 200:
             break
     html = html.text

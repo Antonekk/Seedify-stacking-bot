@@ -1,4 +1,3 @@
-import unicodedata
 from bs4 import BeautifulSoup
 import requests
 import random
@@ -7,6 +6,7 @@ import time
 from dotenv import load_dotenv
 import os
 import tweepy
+import calendar
 
 
 
@@ -23,7 +23,7 @@ staking7 = {
     "txn": "",
     "amount": 0,
     "IO": "",
-    "date": datetime.utcnow().strftime('%y/%m/%d %H:%M:%S')
+    "date": datetime.utcnow().strftime('%d/%m/%y %H:%M:%S')
 }
 staking14 = dict(staking7)
 staking30 = dict(staking7)
@@ -49,6 +49,15 @@ urls = ["0xb667c499b88ac66899e54e27ad830d423d9fba69",
         "0x8900475BF7ed42eFcAcf9AE8CfC24Aa96098f776",
         "0x66b8c1f8DE0574e68366E8c4e47d0C8883A6Ad0b",
         "0x5745b7E077a76bE7Ba37208ff71d843347441576"]
+
+def date_formating(date):
+    date = date.split(", ")[1]
+    date = date.split(" UTC")[0]
+    month_to_num = dict((month, str(index)) for index, month in enumerate(calendar.month_abbr) if month)
+    date = date.split(" ")
+    date = date[0] + "/" + month_to_num[date[1]] + "/" + date[2][2:] + " " + date[3]
+    date = datetime.strptime(date, '%d/%m/%y %H:%M:%S')
+    return date
 
 
 def get_agents():
@@ -84,28 +93,30 @@ def post(data, staking_time):
 def get_txn(contract, staking, staking_time):
     while True:
         header = get_agents()
-        html = requests.get(f"https://bscscan.com/tokentxns?a={contract}", headers=header, timeout=5 )
+        html = requests.get(f"https://bscxplorer.com/address/{contract}?filter=1", headers=header, timeout=5)
         if html.status_code == 200:
             break
     html = html.text
 
     soup = BeautifulSoup(html, 'lxml')
-    tablerows = soup.find("table", class_="table table-text-normal table-hover").tbody.find_all("tr")
+    tablerows = soup.find("ul", class_="block-list mt-6").find_all("li", class_="is-highlighted has-text-centered-touch is-success")
     first_txn = {}
     for row in tablerows:
-        token = row.find("img").parent.text
-        if "SFUND" not in token:
-            break
-        hash = row.find("a",class_="myFnExpandBox_searchVal").text
+        hash = row.find("a", class_="is-size-6 mempool-hash mb-0").text
         if hash == staking["txn"]:
             break
-        amount = round(float( (row.find_all("td")[7].text).replace(",", "") ),2)
-        IO = unicodedata.normalize("NFKD",row.find_all("td")[5].text).strip()
+        amount = float(row.find("div", class_="level-item token-balance").find("p").text.strip("SFUND"))
+        amount = round(amount, 2)
 
-        date = row.find_all("td")[3].span["title"].replace("-", "/")
-        date = date[2:4] + date[4:]
-        date = datetime.strptime(date, '%y/%m/%d %H:%M:%S')
-        stacting_date = datetime.strptime(staking["date"], '%y/%m/%d %H:%M:%S')
+        IO = row.find("div", class_="level-item token-balance").find("p")["class"]
+        if "success" in IO[2]:
+            IO = "IN"
+        else:
+            IO = "OUT"
+
+        date = row.find_all("div", class_="level-item")[1].text
+        date = date_formating(date)
+        stacting_date = datetime.strptime(staking["date"], '%d/%m/%y %H:%M:%S')
 
         if date > stacting_date:
             transaction = {
@@ -122,3 +133,5 @@ def get_txn(contract, staking, staking_time):
     return  first_txn
 
 main()
+
+

@@ -23,6 +23,7 @@ def main():
 
 def post(data, staking_time):
     if data["amount"] > 250:
+        #check SFUND price by using coingeco API
         sfund_worth = str(round(float(data['amount']) * sfund_price['seedify-fund']['usd'],2))
         print(sfund_worth)
         if data["IO"] == "IN":

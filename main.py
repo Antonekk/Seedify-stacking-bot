@@ -1,4 +1,3 @@
-import unicodedata
 from bs4 import BeautifulSoup
 import requests
 import random
@@ -7,10 +6,12 @@ import time
 from dotenv import load_dotenv
 import os
 import tweepy
+import calendar
 
 
 
 def main():
+    variables_initialization()
     while True:
         for i in range(5):
             stakings_list[i].update(get_txn(urls[i], stakings_list[i], staking_time[i]))
@@ -18,37 +19,103 @@ def main():
         time.sleep(120)
 
 
+def post(data, staking_time):
+    if data["amount"] > 250:
+        if data["IO"] == "IN":
+            client.create_tweet(text=(f"{data['amount']} SFUND was staked for {staking_time} days. More details here: https://bscscan.com/tx/{data['txn']}"))
+            print("POSTED")
+        else:
+            client.create_tweet(text=(f"{data['amount']} SFUND was unstaked from {staking_time} days pool. More details here: https://bscscan.com/tx/{data['txn']}"))
+            print("POSTED")
 
-staking7 = {
-    "txn": "",
-    "amount": 0,
-    "IO": "",
-    "date": datetime.utcnow().strftime('%y/%m/%d %H:%M:%S')
-}
-staking14 = dict(staking7)
-staking30 = dict(staking7)
-staking60 = dict(staking7)
-staking90 = dict(staking7)
 
-stakings_list = [staking7, staking14, staking30, staking60, staking90]
-staking_time = ["7", "14", "30", "60", "90"]
+def get_txn(contract, staking, staking_time):
+    while True:
+        header = get_agents()
+        html = requests.get(f"https://bscxplorer.com/address/{contract}?filter=1", headers=header, timeout=5)
+        if html.status_code == 200:
+            break
+    html = html.text
 
-load_dotenv()
-API_KEY = os.getenv("API_KEY")
-API_SECRET_KEY = os.getenv("API_SECRET_KEY")
-ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
-ACCESS_SECRET_TOKEN = os.getenv("ACCESS_SECRET_TOKEN")
-client = tweepy.Client(consumer_key=API_KEY,
-                       consumer_secret=API_SECRET_KEY,
-                       access_token=ACCESS_TOKEN,
-                       access_token_secret=ACCESS_SECRET_TOKEN,
-                       wait_on_rate_limit=True)
+    soup = BeautifulSoup(html, 'lxml')
+    tablerows = soup.find("ul", class_="block-list mt-6").find_all("li", class_="is-highlighted has-text-centered-touch is-success")
+    first_txn = {}
+    for row in tablerows:
+        hash = row.find("a", class_="is-size-6 mempool-hash mb-0").text
+        if hash == staking["txn"]:
+            break
+        amount = float(row.find("div", class_="level-item token-balance").find("p").text.strip("SFUND"))
+        amount = round(amount, 2)
 
-urls = ["0xb667c499b88ac66899e54e27ad830d423d9fba69",
-        "0x027fC3A49383D0E7Bd6b81ef6C7512aFD7d22a9e",
-        "0x8900475BF7ed42eFcAcf9AE8CfC24Aa96098f776",
-        "0x66b8c1f8DE0574e68366E8c4e47d0C8883A6Ad0b",
-        "0x5745b7E077a76bE7Ba37208ff71d843347441576"]
+        IO = row.find("div", class_="level-item token-balance").find("p")["class"]
+        if "success" in IO[2]:
+            IO = "IN"
+        else:
+            IO = "OUT"
+
+        date = row.find_all("div", class_="level-item")[1].text
+        date = date_formating(date)
+        stacting_date = datetime.strptime(staking["date"], '%d/%m/%y %H:%M:%S')
+
+        if date > stacting_date:
+            transaction = {
+                "txn": hash,
+                "amount": amount,
+                "IO": IO,
+                "date": date.strftime('%y/%m/%d %H:%M:%S')
+            }
+            post(transaction, staking_time)
+            if not first_txn:
+                first_txn = transaction
+        else:
+            break
+    return  first_txn
+
+def date_formating(date):
+    date = date.split(", ")[1]
+    date = date.split(" UTC")[0]
+    month_to_num = dict((month, str(index)) for index, month in enumerate(calendar.month_abbr) if month)
+    date = date.split(" ")
+    date = date[0] + "/" + month_to_num[date[1]] + "/" + date[2][2:] + " " + date[3]
+    date = datetime.strptime(date, '%d/%m/%y %H:%M:%S')
+    return date
+
+
+def variables_initialization():
+    global staking7, staking14, staking30, staking60, staking90, stakings_list, staking_time,client, urls
+
+    staking7 = {
+        "txn": "",
+        "amount": 0,
+        "IO": "",
+        "date": datetime.utcnow().strftime('%d/%m/%y %H:%M:%S')
+    }
+    staking14 = dict(staking7)
+    staking30 = dict(staking7)
+    staking60 = dict(staking7)
+    staking90 = dict(staking7)
+
+    stakings_list = [staking7, staking14, staking30, staking60, staking90]
+    staking_time = ["7", "14", "30", "60", "90"]
+
+    load_dotenv()
+    API_KEY = os.getenv("API_KEY")
+    API_SECRET_KEY = os.getenv("API_SECRET_KEY")
+    ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
+    ACCESS_SECRET_TOKEN = os.getenv("ACCESS_SECRET_TOKEN")
+    client = tweepy.Client(consumer_key=API_KEY,
+                           consumer_secret=API_SECRET_KEY,
+                           access_token=ACCESS_TOKEN,
+                           access_token_secret=ACCESS_SECRET_TOKEN,
+                           wait_on_rate_limit=True)
+
+    urls = ["0xb667c499b88ac66899e54e27ad830d423d9fba69",
+            "0x027fC3A49383D0E7Bd6b81ef6C7512aFD7d22a9e",
+            "0x8900475BF7ed42eFcAcf9AE8CfC24Aa96098f776",
+            "0x66b8c1f8DE0574e68366E8c4e47d0C8883A6Ad0b",
+            "0x5745b7E077a76bE7Ba37208ff71d843347441576"]
+
+
 
 
 def get_agents():
@@ -69,57 +136,6 @@ def get_agents():
 
     return {"user-agent": random.choice(user_agents)}
 
-
-
-def post(data, staking_time):
-    if data["amount"] > 250:
-        if data["IO"] == "IN":
-            client.create_tweet(text=(f"{data['amount']} SFUND was staked for {staking_time} days. More details here: https://bscscan.com/tx/{data['txn']}"))
-            print("POSTED")
-        else:
-            client.create_tweet(text=(f"{data['amount']} SFUND was unstaked from {staking_time} days pool. More details here: https://bscscan.com/tx/{data['txn']}"))
-            print("POSTED")
-
-
-def get_txn(contract, staking, staking_time):
-    while True:
-        header = get_agents()
-        html = requests.get(f"https://bscscan.com/tokentxns?a={contract}", headers=header, timeout=5, proxies={ "https" : "https://20.113.143.102"})
-        if html.status_code == 200:
-            break
-    html = html.text
-
-    soup = BeautifulSoup(html, 'lxml')
-    tablerows = soup.find("table", class_="table table-text-normal table-hover").tbody.find_all("tr")
-    first_txn = {}
-    for row in tablerows:
-        token = row.find("img").parent.text
-        if "SFUND" not in token:
-            break
-        hash = row.find("a",class_="myFnExpandBox_searchVal").text
-        if hash == staking["txn"]:
-            break
-        amount = round(float( (row.find_all("td")[7].text).replace(",", "") ),2)
-        IO = unicodedata.normalize("NFKD",row.find_all("td")[5].text).strip()
-
-        date = row.find_all("td")[3].span["title"].replace("-", "/")
-        date = date[2:4] + date[4:]
-        date = datetime.strptime(date, '%y/%m/%d %H:%M:%S')
-        stacting_date = datetime.strptime(staking["date"], '%y/%m/%d %H:%M:%S')
-
-        if date > stacting_date:
-            transaction = {
-                "txn": hash,
-                "amount": amount,
-                "IO": IO,
-                "date": date.strftime('%y/%m/%d %H:%M:%S')
-            }
-            post(transaction, staking_time)
-            if not first_txn:
-                first_txn = transaction
-        else:
-            break
-    return  first_txn
 
 main()
 

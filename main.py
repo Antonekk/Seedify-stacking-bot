@@ -7,12 +7,14 @@ from dotenv import load_dotenv
 import os
 import tweepy
 import calendar
+from pycoingecko import CoinGeckoAPI
 
 
 
 def main():
     variables_initialization()
     while True:
+        sfund_price = coin_api.get_price(ids='seedify-fund', vs_currencies='usd')
         for i in range(5):
             stakings_list[i].update(get_txn(urls[i], stakings_list[i], staking_time[i]))
         print("wait")
@@ -21,11 +23,13 @@ def main():
 
 def post(data, staking_time):
     if data["amount"] > 250:
+        sfund_worth = str(round(float(data['amount']) * sfund_price['seedify-fund']['usd'],2))
+        print(sfund_worth)
         if data["IO"] == "IN":
-            client.create_tweet(text=(f"{data['amount']} SFUND was staked for {staking_time} days. More details here: https://bscscan.com/tx/{data['txn']}"))
+            client.create_tweet(text=(f"{data['amount']} SFUND worth {sfund_worth}$ was staked for {staking_time} days. More details here: https://bscscan.com/tx/{data['txn']}"))
             print("POSTED")
         else:
-            client.create_tweet(text=(f"{data['amount']} SFUND was unstaked from {staking_time} days pool. More details here: https://bscscan.com/tx/{data['txn']}"))
+            client.create_tweet(text=(f"{data['amount']} SFUND worth {sfund_worth}$ was unstaked from {staking_time} days pool. More details here: https://bscscan.com/tx/{data['txn']}"))
             print("POSTED")
 
 
@@ -82,7 +86,9 @@ def date_formating(date):
 
 
 def variables_initialization():
-    global staking7, staking14, staking30, staking60, staking90, stakings_list, staking_time,client, urls
+    global staking7, staking14, staking30, staking60, staking90, stakings_list, staking_time,client, urls, coin_api, sfund_price
+
+    coin_api = CoinGeckoAPI()
 
     staking7 = {
         "txn": "",
@@ -138,6 +144,5 @@ def get_agents():
 
 
 main()
-
 
 

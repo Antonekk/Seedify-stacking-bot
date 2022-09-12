@@ -14,7 +14,6 @@ from pycoingecko import CoinGeckoAPI
 def main():
     variables_initialization()
     while True:
-        sfund_price = coin_api.get_price(ids='seedify-fund', vs_currencies='usd')
         for i in range(5):
             stakings_list[i].update(get_txn(urls[i], stakings_list[i], staking_time[i]))
         print("wait")
@@ -24,6 +23,12 @@ def main():
 def post(data, staking_time):
     if data["amount"] > 250:
         #check SFUND price by using coingeco API
+        try:
+            sfund_price = coin_api.get_price(ids='seedify-fund', vs_currencies='usd')
+        except:
+            time.sleep(2)
+            sfund_price = coin_api.get_price(ids='seedify-fund', vs_currencies='usd')
+         
         sfund_worth = str(round(float(data['amount']) * sfund_price['seedify-fund']['usd'],2))
         print(sfund_worth)
         if data["IO"] == "IN":
@@ -87,7 +92,7 @@ def date_formating(date):
 
 
 def variables_initialization():
-    global staking7, staking14, staking30, staking60, staking90, stakings_list, staking_time,client, urls, coin_api, sfund_price
+    global staking7, staking14, staking30, staking60, staking90, stakings_list, staking_time,client, urls, coin_api
 
     coin_api = CoinGeckoAPI()
 

@@ -35,7 +35,7 @@ def post(data, staking_time):
             print("POSTED")
         else:
             client.create_tweet(text=(
-                f"{data['amount']} SFUND worth {sfund_worth}$ was unstaked from {staking_time} days pool. More details here: https://bscscan.com/tx/{data['txn']}"))
+                f"{data['amount']} SFUND worth {sfund_worth:,}$ was unstaked from {staking_time} days pool. More details here: https://bscscan.com/tx/{data['txn']}"))
             print("POSTED")
 
 

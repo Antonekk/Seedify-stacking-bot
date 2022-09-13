@@ -31,11 +31,11 @@ def post(data, staking_time):
         sfund_worth = round(float(data['amount']) * sfund_price['seedify-fund']['usd'], 2)
         if data["IO"] == "IN":
             client.create_tweet(text=(
-                f"{data['amount']} SFUND worth {sfund_worth:,}$ was staked for {staking_time} days. More details here: https://bscscan.com/tx/{data['txn']}"))
+                f"{data['amount']:,} SFUND worth {sfund_worth:,}$ was staked for {staking_time} days. More details here: https://bscscan.com/tx/{data['txn']}"))
             print("POSTED")
         else:
             client.create_tweet(text=(
-                f"{data['amount']} SFUND worth {sfund_worth:,}$ was unstaked from {staking_time} days pool. More details here: https://bscscan.com/tx/{data['txn']}"))
+                f"{data['amount']:,} SFUND worth {sfund_worth:,}$ was unstaked from {staking_time} days pool. More details here: https://bscscan.com/tx/{data['txn']}"))
             print("POSTED")
 
 

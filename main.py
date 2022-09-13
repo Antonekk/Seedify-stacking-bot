@@ -21,7 +21,7 @@ def main():
 
 
 def post(data, staking_time):
-    if data["amount"] > 250:
+    if data["amount"] >= 1000:
         #check SFUND price by using coingeco API
         try:
             sfund_price = coin_api.get_price(ids='seedify-fund', vs_currencies='usd')

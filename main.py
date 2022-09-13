@@ -15,7 +15,7 @@ def main():
     while True:
         for i in range(5):
             stakings_list[i].update(get_txn(urls[i], stakings_list[i], staking_time[i]))
-        print("wait")
+        print("Wait 2 min")
         time.sleep(120)
 
 
@@ -28,11 +28,10 @@ def post(data, staking_time):
             time.sleep(2)
             sfund_price = coin_api.get_price(ids='seedify-fund', vs_currencies='usd')
 
-        sfund_worth = str(round(float(data['amount']) * sfund_price['seedify-fund']['usd'], 2))
-        print(sfund_worth)
+        sfund_worth = round(float(data['amount']) * sfund_price['seedify-fund']['usd'], 2)
         if data["IO"] == "IN":
             client.create_tweet(text=(
-                f"{data['amount']} SFUND worth {sfund_worth}$ was staked for {staking_time} days. More details here: https://bscscan.com/tx/{data['txn']}"))
+                f"{data['amount']} SFUND worth {sfund_worth:,}$ was staked for {staking_time} days. More details here: https://bscscan.com/tx/{data['txn']}"))
             print("POSTED")
         else:
             client.create_tweet(text=(

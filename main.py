@@ -8,6 +8,7 @@ import os
 import tweepy
 import calendar
 from pycoingecko import CoinGeckoAPI
+import schedule
 
 
 def main():
@@ -15,11 +16,27 @@ def main():
     while True:
         for i in range(5):
             stakings_list[i].update(get_txn(urls[i], stakings_list[i], staking_time[i]))
+        schedule.run_pending()
         print("Wait 2 min")
         time.sleep(120)
 
 
+def job(daily):
+    client.create_tweet(text=(
+        f'SFUND deposited to all pools past 24h: {daily["in"]}\nSFUND withdrawn from all pools past 24h: {daily["out"]}'))
+    print("POSTED SUMMARY")
+
+
+
 def post(data, staking_time):
+    global daily
+    if data["IO"] == "IN":
+        daily["in"] += data["amount"]
+        print(daily["in"])
+    else:
+        daily["out"] += data["amount"]
+        print(daily["out"])
+
     if data["amount"] >= 1000:
         # check SFUND price by using coingeco API
         try:
@@ -94,7 +111,14 @@ def date_formating(date):
 
 
 def variables_initialization():
-    global staking7, staking14, staking30, staking60, staking90, stakings_list, staking_time, client, urls, coin_api
+    global staking7, staking14, staking30, staking60, staking90, stakings_list, staking_time, client, urls, coin_api, schedule
+
+    global daily
+    daily = {
+        "in": 0,
+        "out": 0
+    }
+    schedule.every().day.at("12:00").do(job, daily=daily)
 
     coin_api = CoinGeckoAPI()
 
@@ -147,6 +171,7 @@ def get_agents():
     ]
 
     return {"user-agent": random.choice(user_agents)}
+
 
 
 main()

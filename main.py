@@ -22,9 +22,18 @@ def main():
 
 
 def job(daily):
+    try:
+        sfund_price = coin_api.get_price(ids='seedify-fund', vs_currencies='usd')
+    except:
+        time.sleep(2)
+        sfund_price = coin_api.get_price(ids='seedify-fund', vs_currencies='usd')
+
+    sfund_worth_in = round(float(daily['in']) * sfund_price['seedify-fund']['usd'], 2)
+    sfund_worth_out = round(float(daily['out']) * sfund_price['seedify-fund']['usd'], 2)
     client.create_tweet(text=(
-        f'SFUND deposited to all pools past 24h: {daily["in"]}\nSFUND withdrawn from all pools past 24h: {daily["out"]}'))
+        f'$SFUND depostied and withdrawn from all pools in past 24h:\n\n\n➡  DEPOSITED: {round(daily["in"],2):,} SFUND worth {sfund_worth_in:,}$\n\n⬅  WITHDRAWN: {round(daily["out"],2):,} SFUND worth {sfund_worth_out:,}$'))
     print("POSTED SUMMARY")
+    daily_post_reset()
 
 
 
@@ -32,10 +41,8 @@ def post(data, staking_time):
     global daily
     if data["IO"] == "IN":
         daily["in"] += data["amount"]
-        print(daily["in"])
     else:
         daily["out"] += data["amount"]
-        print(daily["out"])
 
     if data["amount"] >= 1000:
         # check SFUND price by using coingeco API
@@ -109,6 +116,13 @@ def date_formating(date):
     date = datetime.strptime(date, '%d/%m/%y %H:%M:%S')
     return date
 
+def daily_post_reset():
+    global daily
+    daily = {
+        "in": 0,
+        "out": 0
+    }
+    print("Reseted")
 
 def variables_initialization():
     global staking7, staking14, staking30, staking60, staking90, stakings_list, staking_time, client, urls, coin_api, schedule

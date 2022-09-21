@@ -44,8 +44,9 @@ def post(data, staking_time):
     else:
         daily["out"] += data["amount"]
 
-    if data["amount"] >= 1000:
+    if data["amount"] >= 5000:
         # check SFUND price by using coingeco API
+        emotes = ""
         try:
             sfund_price = coin_api.get_price(ids='seedify-fund', vs_currencies='usd')
         except:
@@ -54,12 +55,25 @@ def post(data, staking_time):
 
         sfund_worth = round(float(data['amount']) * sfund_price['seedify-fund']['usd'], 2)
         if data["IO"] == "IN":
+            if data["amount"] < 10000:
+                emotes += "🔥"
+            elif data["amount"] < 20000:
+                emotes += "🔥🔥🔥"
+            else:
+                emotes += "🔥🔥🔥🔥🔥"
+
             client.create_tweet(text=(
-                f"{data['amount']:,} SFUND worth {sfund_worth:,}$ was staked for {staking_time} days. More details here: https://bscscan.com/tx/{data['txn']}"))
+                f"{emotes}  {data['amount']:,} SFUND worth {sfund_worth:,}$ was staked for {staking_time} days. More details here: https://bscscan.com/tx/{data['txn']}"))
             print("POSTED")
         else:
+            if data["amount"] < 10000:
+                emotes += "⚠️"
+            elif data["amount"] < 20000:
+                emotes += "⚠️⚠️⚠️"
+            else:
+                emotes += "⚠️⚠️⚠️⚠️⚠️"
             client.create_tweet(text=(
-                f"{data['amount']:,} SFUND worth {sfund_worth:,}$ was unstaked from {staking_time} days pool. More details here: https://bscscan.com/tx/{data['txn']}"))
+                f"{emotes}  {data['amount']:,} SFUND worth {sfund_worth:,}$ was unstaked from {staking_time} days pool. More details here: https://bscscan.com/tx/{data['txn']}"))
             print("POSTED")
 
 

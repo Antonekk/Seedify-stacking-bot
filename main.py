@@ -44,6 +44,8 @@ def post(data, staking_time):
     else:
         daily["out"] += data["amount"]
 
+    print(data)
+
     if data["amount"] >= 5000:
         # check SFUND price by using coingeco API
         emotes = ""

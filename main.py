@@ -17,7 +17,6 @@ def main():
         for i in range(5):
             stakings_list[i].update(get_txn(urls[i], stakings_list[i], staking_time[i]))
         schedule.run_pending()
-        print("Wait 2 min")
         time.sleep(120)
 
 
@@ -53,6 +52,7 @@ def post(data, staking_time):
             sfund_price = coin_api.get_price(ids='seedify-fund', vs_currencies='usd')
         except:
             time.sleep(2)
+            print("price creck error")
             sfund_price = coin_api.get_price(ids='seedify-fund', vs_currencies='usd')
 
         sfund_worth = round(float(data['amount']) * sfund_price['seedify-fund']['usd'], 2)

@@ -46,6 +46,7 @@ def post(data, staking_time):
     print(data)
 
     if data["amount"] >= 5000:
+        print("data over 5k")
         # check SFUND price by using coingeco API
         emotes = ""
         try:
@@ -59,10 +60,13 @@ def post(data, staking_time):
         if data["IO"] == "IN":
             if data["amount"] < 10000:
                 emotes += "🔥"
+                print("data got emote")
             elif data["amount"] < 20000:
                 emotes += "🔥🔥🔥"
+                print("data got emote")
             else:
                 emotes += "🔥🔥🔥🔥🔥"
+                print("data got emote")
 
             client.create_tweet(text=(
                 f"{emotes}  {data['amount']:,} SFUND worth {sfund_worth:,}$ was staked for {staking_time} days. More details here: https://bscscan.com/tx/{data['txn']}"))
@@ -70,10 +74,13 @@ def post(data, staking_time):
         else:
             if data["amount"] < 10000:
                 emotes += "⚠️"
+                print("data got emote")
             elif data["amount"] < 20000:
                 emotes += "⚠️⚠️⚠️"
+                print("data got emote")
             else:
                 emotes += "⚠️⚠️⚠️⚠️⚠️"
+                print("data got emote")
             client.create_tweet(text=(
                 f"{emotes}  {data['amount']:,} SFUND worth {sfund_worth:,}$ was unstaked from {staking_time} days pool. More details here: https://bscscan.com/tx/{data['txn']}"))
             print("POSTED")
